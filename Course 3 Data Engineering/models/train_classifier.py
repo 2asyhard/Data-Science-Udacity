@@ -22,11 +22,12 @@ nltk.download(['punkt', 'wordnet'])
 
 
 def load_data(database_filepath):
-    engine = create_engine(f'sqlite:///')
+    # load data from database
+    engine = create_engine(f'sqlite:///{database_filepath}')
     df = pd.read_sql_table("Messages", con=engine)
     X = df['message']
     Y = df.iloc[:, 4:]
-    return X, Y
+    return X,Y
 
 
 def tokenize(text):
@@ -75,10 +76,10 @@ def save_model(model, model_filepath):
 
 def main():
     """ Builds the model, trains the model, evaluates the model, saves the model."""
-    if len(sys.argv) == 1:
-        # database_filepath, model_filepath = sys.argv[1:]
-        print('Loading data...\n    DATABASE: {}'.format('../data/'))
-        X, Y = load_data('../data/')
+    if len(sys.argv) == 3:
+        database_filepath, model_filepath = sys.argv[1:]
+        print('Loading data...\n    DATABASE: {}'.format(database_filepath))
+        X, Y = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
         print('Building model...')
@@ -90,8 +91,8 @@ def main():
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test)
 
-        print('Saving model...\n    MODEL: {}'.format(''))
-        save_model(model, './')
+        print('Saving model...\n    MODEL: {}'.format(model_filepath))
+        save_model(model, model_filepath)
 
         print('Trained model saved!')
 
