@@ -42,11 +42,8 @@ README.md
 1. Run `python run.py` in terminal
 2. Go to http://0.0.0.0:3001 in your browser
 
-![screenshot1](./imgs/~)
+![screenshot1](./imgs/1.png)
 
-![screenshot1](./imgs/~)
+![screenshot1](./imgs/2.png)
 
-![screenshot1](./imgs/~)
-
-
-## License
+![screenshot1](./imgs/3.png)
