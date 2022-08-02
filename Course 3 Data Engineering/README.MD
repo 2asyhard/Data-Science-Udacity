@@ -47,3 +47,8 @@ README.md
 ![screenshot1](./imgs/2.png)
 
 ![screenshot1](./imgs/3.png)
+
+
+
+## License
+The template code was provided by Udacity. And the CSV file was provided by Figure Eight.
