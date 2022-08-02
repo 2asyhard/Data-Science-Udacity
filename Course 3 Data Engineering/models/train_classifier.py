@@ -19,6 +19,7 @@ from sklearn.metrics import classification_report
 import pickle
 
 nltk.download(['punkt', 'wordnet'])
+nltk.download('omw-1.4')
 
 
 def load_data(database_filepath):
@@ -67,7 +68,9 @@ def build_model():
 def evaluate_model(model, X_test, Y_test):
     y_pred = model.predict(X_test)
     for index, column in enumerate(Y_test):
-        print(column, classification_report(Y_test[column], y_pred[:, index]))
+        print(f"--------{column}---------")
+        print(classification_report(Y_test[column], y_pred[:, index]))
+        print()
 
 
 def save_model(model, model_filepath):
