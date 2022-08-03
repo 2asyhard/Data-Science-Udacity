@@ -63,6 +63,5 @@ README.md
 ![screenshot1](./imgs/3.png)
 
 
-
-## License
-The template code was provided by Udacity. And the CSV file was provided by Figure Eight.
+## License and Acknowledgements
+This project was carried out after taking a lecture on udacity. Also the template code was provided by Udacity. And the CSV file was provided by Figure Eight.
