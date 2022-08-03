@@ -38,6 +38,20 @@ Disaster text data were provided by Figure Eight.
 README.md    
 
 
+## Installation
+#### This project requires following packages
+1. pandas
+2. numpy
+3. sqlalchemy
+4. matplotlib
+5. nltk
+6. scikit-learn
+7. flask
+8. joblib(if joblib from scikit-learn doesn't work)
+9. plotly
+
+
+
 ## How to run web app
 1. Run `python run.py` in terminal
 2. Go to http://0.0.0.0:3001 in your browser
