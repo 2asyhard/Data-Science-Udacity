@@ -16,6 +16,14 @@ from sqlalchemy import create_engine
 app = Flask(__name__)
 
 def tokenize(text):
+    """
+    tokenize/lemmatize input text
+
+    Parameters:
+        text: input text
+    Returns:
+        clean_tokens: tokenized text
+    """
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -38,7 +46,6 @@ model = joblib.load("../models/model.pkl")
 @app.route('/')
 @app.route('/index')
 def index():
-    
     # extract data needed for visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)

@@ -23,6 +23,16 @@ nltk.download('omw-1.4')
 
 
 def load_data(database_filepath):
+    """
+    Load data from database using SQLite
+
+    Parameters:
+        database_filepath: Filepath of database
+
+    Returns:
+        X: Features
+        Y: Target
+    """
     # load data from database
     engine = create_engine(f'sqlite:///{database_filepath}')
     df = pd.read_sql_table("Messages", con=engine)
@@ -32,6 +42,15 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """
+    Tokenize/lemmatize text.
+
+    Parameters:
+        text: Text data that needs to be tokenized
+
+    Returns:
+        clean_tokens: Tokenized text
+    """
     # tokenize text
     tokens = word_tokenize(text)
 
@@ -48,7 +67,12 @@ def tokenize(text):
 
 
 def build_model():
+    """
+    Builds classifier and tunes model using GridSearchCV.
 
+    Returns:
+        cv: Classifier
+    """
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -66,6 +90,18 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test):
+    """
+    Evaluates the model and returns classification report.
+    This function doesn't have return, instead it prints classification report for each target column
+
+    Parameters:
+        model: classifier
+        X_test: test dataset
+        Y_test: labels for test data in X_test
+
+    Returns:
+        -
+    """
     y_pred = model.predict(X_test)
     for index, column in enumerate(Y_test):
         print(f"--------{column}---------")
@@ -74,7 +110,7 @@ def evaluate_model(model, X_test, Y_test):
 
 
 def save_model(model, model_filepath):
-    # Exports the model as a pickle file
+    """ Exports the final model as a pickle file."""
     pickle.dump(model, open(model_filepath, 'wb'))
 
 
