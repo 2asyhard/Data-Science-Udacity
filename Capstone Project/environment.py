@@ -7,10 +7,10 @@ class Environment:
     def __init__(self):
         self.columns = cfg.num_stacks
         self.rows = cfg.max_blocks
-        self.blocks = cfg.blocks
+        self.blocks = deepcopy(cfg.blocks)
         self.action_size = self.columns*(self.columns-1)
         self.action_list = self.make_action_list()
-        self.state = deepcopy(cfg.state_target)
+        self.state = self.make_random_state()
 
 
     def make_action_list(self):
@@ -19,7 +19,7 @@ class Environment:
         for i in range(self.columns):
             for j in range(self.columns):
                 if i != j:
-                    self.action_list.append([1, i, j])
+                    action_list.append([1, i, j])
         return action_list
 
 
@@ -30,7 +30,7 @@ class Environment:
         action = self.action_list[action_num]
         self.execute_action(action)
         done, reward = self.check_terminal_state()
-        return pre_state, action_num, self.state, reward
+        return pre_state, action_num, self.state, reward, done
 
 
     def execute_action(self, in_action):
@@ -51,7 +51,7 @@ class Environment:
 
     def get_valid_action_list(self):
         # get possible action and impossible action
-        action_list = deepcopy(self.action_list)
+        action_list = self.make_action_list()
         stack_size = []
         for i in range(self.columns):
             tmp_stack_size = 0
@@ -67,7 +67,8 @@ class Environment:
                 if stack_size[i] == self.rows and action_list[j][2] == i:
                     action_list[j][0] = 0
 
-        return action_list
+        # return action_list
+        self.action_list = action_list
 
 
     def check_terminal_state(self):
@@ -80,7 +81,7 @@ class Environment:
             for j in range(self.rows - 1):
                 if self.state[j, i] > self.state[j + 1, i]:
                     return False, reward
-        reward = cfg.reward
+        reward = cfg.REWARD
         return True, reward
 
 
@@ -134,5 +135,5 @@ class Environment:
                     tmp_stack[chosen_stack_num].append(block_num)
                     break
             del self.blocks[block_idx]
-
+        self.blocks = deepcopy(cfg.blocks)
         return tmp_stack
