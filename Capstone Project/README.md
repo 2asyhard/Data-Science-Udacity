@@ -33,6 +33,9 @@ This is the main file for my project. It contains class or functions for neural 
 #### environment.py
 Simulation will be done in this file. This file will generate data such as state, action and reward
 
+#### result.xlsx
+Result from Reinforcement Learning training. A total of 200,000 episodes were performed, the average steps and success rate were calculated for every 500 episodes. Total 200,000 
+
 
 ### 4. Licensing, Authors, Acknowledgements, etc.
 This project is from Udacity Nanodegree capstone project
