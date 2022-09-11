@@ -2,6 +2,8 @@
 
 ## Optimize sorting operation in logistics with Deep Reinforcement Learning
 
+[Medium blog](https://medium.com/@tetaeho/optimize-sorting-operation-in-logistics-e1b9c1994bab)
+
 ### 1. Installations
 
 This project uses Python and the following packages are used. 
@@ -33,5 +35,4 @@ Simulation will be done in this file. This file will generate data such as state
 
 
 ### 4. Licensing, Authors, Acknowledgements, etc.
-
-Data for coding project was provided by Udacity.
+This project is from Udacity Nanodegree capstone project
