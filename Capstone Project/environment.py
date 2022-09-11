@@ -1,139 +1,99 @@
-from copy import deepcopy
-import config as cfg
 import numpy as np
-
+import copy
 
 class Environment:
-    def __init__(self):
-        self.columns = cfg.num_stacks
-        self.rows = cfg.max_blocks
-        self.blocks = deepcopy(cfg.blocks)
-        self.action_size = self.columns*(self.columns-1)
-        self.action_list = self.make_action_list()
-        self.state = self.make_random_state()
+    def __init__(self, num_stack=4, max_stack=4):
+        self.num_stack = num_stack
+        self.max_stack = max_stack
+        self.actions = self.num_stack*(self.num_stack-1)
+        self.s0 = np.array([[0, 0, 0, 0], [3, 3, 0, 2], [3, 2, 1, 1], [1, 2, 3, 2]], dtype=int)
+        self.s = copy.deepcopy(self.s0)
+        self.stopped = 0
+        self._make_action_list()
 
 
-    def make_action_list(self):
-        # make action list
-        action_list = []
-        for i in range(self.columns):
-            for j in range(self.columns):
+    def _make_action_list(self):
+        '''
+        generate action list
+        action [i, j] -> move block from stack i to stack j
+        '''
+        self.action_list = []
+        for i in range(self.num_stack):
+            for j in range(self.num_stack):
                 if i != j:
-                    action_list.append([1, i, j])
-        return action_list
-
-
-    def step(self, action_num):
-        # action -> [validity, out stack, in stack]
-        # return state, action, next state, reward, done
-        pre_state = deepcopy(self.state)
-        action = self.action_list[action_num]
-        self.execute_action(action)
-        done, reward = self.check_terminal_state()
-        return pre_state, action_num, self.state, reward, done
-
-
-    def execute_action(self, in_action):
-        out_stack = in_action[1]
-        in_stack = in_action[2]
-
-        for i in range(self.rows):
-            if self.state[i, out_stack] != 0:
-                target_block = self.state[i, out_stack]
-                self.state[i, out_stack] = 0
-                break
-
-        for i in range(self.rows):
-            if self.state[-i-1, in_stack] == 0:
-                self.state[-i-1, in_stack] = target_block
-                break
-
-
-    def get_valid_action_list(self):
-        # get possible action and impossible action
-        action_list = self.make_action_list()
-        stack_size = []
-        for i in range(self.columns):
-            tmp_stack_size = 0
-            for j in range(self.rows):
-                if self.state[j, i] != 0:
-                    tmp_stack_size += 1
-            stack_size.append(tmp_stack_size)
-
-        for i in range(len(stack_size)):
-            for j in range(len(action_list)):
-                if stack_size[i] == 0 and action_list[j][1] == i:
-                    action_list[j][0] = 0
-                if stack_size[i] == self.rows and action_list[j][2] == i:
-                    action_list[j][0] = 0
-
-        # return action_list
-        self.action_list = action_list
-
-
-    def check_terminal_state(self):
-        '''
-        check if self.state is terminal state
-        if its terminal state than return True and reward(1)
-        '''
-        reward = 0
-        for i in range(self.columns):
-            for j in range(self.rows - 1):
-                if self.state[j, i] > self.state[j + 1, i]:
-                    return False, reward
-        reward = cfg.REWARD
-        return True, reward
-
-
-    def get_child_states(self):
-        parent_state = deepcopy(self.state)
-        valid_actions_list = self.get_valid_action_list()
-        child_state_list = []
-
-        for valid_action in valid_actions_list:
-            if valid_action[0] == 1:
-                self.execute_action(valid_action)
-                child_state_list.append(deepcopy(self.state))
-                self.state = deepcopy(parent_state)
-            else:
-                child_state_list.append(False)
-
-        return child_state_list
+                    self.action_list.append([i, j])
 
 
     def reset(self):
-        while True:
-            self.state = self.make_random_state()
-            done, reward = self.check_terminal_state()
-            if done is False:
+        '''
+        Reset environment and initialize initial state
+        '''
+        self.s = copy.deepcopy(self.s0)
+        return self.s
+
+
+    def step(self, action):
+        """
+        Execute action and check if new state is terminal state
+        if agent didn't reach terminal state, reward is 0
+        """
+        s = self.s
+        s1 = self._move_plate(s, self.action_list[action])
+
+        self.success = False
+        d, r = self.is_rearrange_finish(s1)
+        if d:
+            self.success = True
+
+        return s1, r, d,
+
+
+    def is_rearrange_finish(self, state):
+        """
+        check if state is terminal state
+        if terminal state, returns True and 100(reward)
+        """
+        reward = 0
+        for i in range(self.num_stack):
+            for j in range(self.max_stack-1):
+                if state[j,i] > state[j+1,i]:
+                    return False, reward
+        reward = 100
+        return True, reward
+
+
+    def _move_plate(self, state, action):
+        """
+        This is actual function to move block
+        """
+        target_plate = 0
+        out_zone_tier = -1
+        in_zone_tier = -1
+        new_state = copy.deepcopy(state)
+        for i in range(self.max_stack):
+            if state[i, action[0]] != 0:
+                out_zone_tier = i
                 break
 
+        for i in range(1, self.max_stack + 1):
+            if state[-i, action[1]] == 0:
+                in_zone_tier = self.max_stack - i
+                break
 
-    def make_random_state(self):
-        tmp_stack = self.make_90degree_random_state()
-
-        for i in range(self.columns):
-            while not len(tmp_stack[i]) == self.rows:
-                tmp_stack[i].append(0)
-
-        random_state = np.rot90(tmp_stack)
-        return random_state
-
-
-    def make_90degree_random_state(self):
-        tmp_stack = []
-        for _ in range(self.columns):
-            tmp_stack.append([])
-
-        for _ in range(len(self.blocks)):
-            left_blocks = len(self.blocks)
-            block_idx = np.random.randint(0, left_blocks)
-            block_num = self.blocks[block_idx]
-            while True:
-                chosen_stack_num = np.random.randint(0, self.columns)
-                if len(tmp_stack[chosen_stack_num]) < self.rows:
-                    tmp_stack[chosen_stack_num].append(block_num)
+        if in_zone_tier == -1 or out_zone_tier == -1:
+            #reward -= 1
+            return new_state
+        else:
+            for i in range(self.max_stack):
+                if new_state[i, action[0]] != 0:
+                    target_plate = new_state[i, action[0]]
+                    new_state[i, action[0]] = 0
                     break
-            del self.blocks[block_idx]
-        self.blocks = deepcopy(cfg.blocks)
-        return tmp_stack
+
+            for i in range(1, self.max_stack+1):
+                if new_state[-i, action[1]] == 0:
+                    in_zone_tier = self.max_stack - i
+                    new_state[-i, action[1]] = target_plate
+                    break
+
+            return new_state
